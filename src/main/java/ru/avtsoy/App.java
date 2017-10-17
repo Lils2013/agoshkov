@@ -7,16 +7,16 @@ import javax.swing.*;
 import static org.math.array.DoubleArray.increment;
 
 public class App {
-    private static final double TAU = 0.5;
+    private static final double TAU = 1;
     private static final double A = 1;
     private static final double B = 1;
-    private static final int N_X = 21;
-    private static final int N_Y = 21;
+    private static final int N_X = 31;
+    private static final int N_Y = 31;
     private static final double H_X = A / (N_X - 1);
     private static final double H_Y = B / (N_Y - 1);
     private static final double MU = 1 / (2 * Math.pow(Math.PI,2));
     private static final double T = Math.PI / 2;
-    private static final double ALPHA = 0.0001;
+    private static final double ALPHA = 0.000001;
     private static final int N_TIME_STEPS = 110;
     private static final double TIME_STEP = T / (N_TIME_STEPS - 1);
     private static final double[][][] f = new double[N_TIME_STEPS][N_X][N_Y];
@@ -42,10 +42,11 @@ public class App {
             }
         }
         Plot3DPanel plot = new Plot3DPanel("SOUTH");
-        plot.addGridPlot("u0", x, y, u0);
-//        plot.addGridPlot("phi", x, y, phi[N_TIME_STEPS-1]);
-        plot.addGridPlot("u1", x, y, u1);
-        plot.addGridPlot("u1orig", x, y, z);
+//        plot.addGridPlot("u0", x, y, u0);
+        plot.addGridPlot("phiT", x, y, phi[N_TIME_STEPS-1]);
+//        plot.addGridPlot("u1", x, y, u1);
+//        plot.addGridPlot("u1orig", x, y, z);
+        plot.addGridPlot("phiTorig", x, y, z);
         JFrame frame = new JFrame("a plot panel");
         frame.setSize(600, 600);
         frame.setContentPane(plot);
