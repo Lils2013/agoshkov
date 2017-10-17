@@ -24,8 +24,10 @@ public class App {
         System.out.println("Hello World!");
         double[][][] phi = new double[N_TIME_STEPS][N_X][N_Y];
         phi = eqForPhi(phi);
+        System.out.println(Arrays.deepToString(phi[N_TIME_STEPS - 1]));
         double[][][] q = new double[N_TIME_STEPS][N_X][N_Y];
-        System.out.println(Arrays.deepToString(phi[N_TIME_STEPS-1]));
+        q = eqForQ(q,phi);
+        System.out.println(Arrays.deepToString(q[0]));
     }
 
     private static double[][][] eqForPhi(double[][][] phi) {
@@ -45,8 +47,8 @@ public class App {
             for (int j = 1; j < N_X - 1; j++) {
                 for (int k = 1; k < N_Y - 1; k++) {
                     phi[i][j][k] = Math.pow(TIME_STEP, 2) * (f[i - 1][j][k] +
-                            MU * ((phi[i - 1][j - 1][k] - 2 * phi[i - 1][j][k] + phi[i - 1][j + 1][k]) / Math.pow(H_X, 2) +
-                                    (phi[i - 1][j][k - 1] - 2 * phi[i - 1][j][k] + phi[i - 1][j][k + 1]) / Math.pow(H_Y, 2))) +
+                            MU * (differenceForX(j, k, phi[i - 1]) +
+                                    differenceForY(j, k, phi[i - 1]))) +
                             2 * phi[i - 1][j][k] - phi[i - 2][j][k];
                 }
             }
@@ -55,12 +57,55 @@ public class App {
         return phi;
     }
 
+    private static double[][][] eqForQ(double[][][] q, double[][][] phi) {
+        for (int j = 1; j < N_X - 1; j++) {
+            for (int k = 1; k < N_Y - 1; k++) {
+                q[N_TIME_STEPS - 1][j][k] = (phi[N_TIME_STEPS - 1][j][k] - phi[N_TIME_STEPS - 2][j][k]) / TIME_STEP - varphi1(j, k);
+            }
+        }
+        q[N_TIME_STEPS - 1] = corner(q[N_TIME_STEPS - 1]);
+        for (int j = 1; j < N_X - 1; j++) {
+            for (int k = 1; k < N_Y - 1; k++) {
+                q[N_TIME_STEPS - 2][j][k] = q[N_TIME_STEPS - 1][j][k] - TIME_STEP * (varphi0(j, k) - phi[N_TIME_STEPS - 1][j][k]);
+            }
+        }
+        q[N_TIME_STEPS - 2] = corner(q[N_TIME_STEPS - 2]);
+        for (int i = N_TIME_STEPS - 3; i >= 0; i--) {
+            for (int j = 1; j < N_X - 1; j++) {
+                for (int k = 1; k < N_Y - 1; k++) {
+                    q[i][j][k] = Math.pow(TIME_STEP, 2) * (f[i + 1][j][k] +
+                            MU * (differenceForX(j, k, q[i + 1]) +
+                                    differenceForY(j, k, q[i + 1]))) +
+                            2 * q[i + 1][j][k] - q[i + 2][j][k];
+                }
+            }
+            q[i] = corner(q[i]);
+        }
+        return q;
+    }
+
     private static double u0(int j, int k) {
         return 0;
     }
 
     private static double u1(int j, int k) {
         return Math.sin(j * H_X) * Math.sin(k * H_Y);
+    }
+
+    private static double varphi0(int j, int k) {
+        return Math.sin(j * H_X) * Math.sin(k * H_Y);
+    }
+
+    private static double varphi1(int j, int k) {
+        return 0;
+    }
+
+    private static double differenceForX(int j, int k, double[][] arr) {
+        return (arr[j - 1][k] - 2 * arr[j][k] + arr[j + 1][k]) / Math.pow(H_X, 2);
+    }
+
+    private static double differenceForY(int j, int k, double[][] arr) {
+        return (arr[j][k - 1] - 2 * arr[j][k] + arr[j][k + 1]) / Math.pow(H_Y, 2);
     }
 
     private static double[][] corner(double[][] arr) {
