@@ -1,34 +1,55 @@
 package ru.avtsoy;
 
-import java.util.Arrays;
+import org.math.plot.Plot3DPanel;
+
+import javax.swing.*;
+
+import static org.math.array.DoubleArray.increment;
 
 public class App {
     private static final double TAU = 0.5;
     private static final double A = 1;
     private static final double B = 1;
-    private static final int N_X = 11;
-    private static final int N_Y = 11;
+    private static final int N_X = 21;
+    private static final int N_Y = 21;
     private static final double H_X = A / (N_X - 1);
     private static final double H_Y = B / (N_Y - 1);
-    private static final double MU = 1 / (2 * Math.PI);
+    private static final double MU = 1 / (2 * Math.pow(Math.PI,2));
     private static final double T = Math.PI / 2;
     private static final double ALPHA = 0.0001;
-    private static final int N_TIME_STEPS = 10000;
+    private static final int N_TIME_STEPS = 110;
     private static final double TIME_STEP = T / (N_TIME_STEPS - 1);
     private static final double[][][] f = new double[N_TIME_STEPS][N_X][N_Y];
 
     public static void main(String[] args) {
         double[][] u0 = generateU0();
         double[][] u1 = generateU1();
+        double[][][] phi = new double[N_TIME_STEPS][N_X][N_Y];
+        double[][][] q = new double[N_TIME_STEPS][N_X][N_Y];
         int M = 5;
         for (int l = 0; l < M; l++) {
-            double[][][] phi = new double[N_TIME_STEPS][N_X][N_Y];
             phi = eqForPhi(phi,u0,u1);
-            double[][][] q = new double[N_TIME_STEPS][N_X][N_Y];
             q = eqForQ(q, phi);
             u0 = newU0(u0,q);
             u1 = newU1(u1,q);
         }
+        double[] x = increment(0.0, H_X, 1.0); // x = 0.0:0.1:1.0
+        double[] y = increment(0.0, H_Y, 1.0);// y = 0.0:0.05:1.0
+        double[][] z = new double[N_X][N_Y];
+        for (int j = 1; j < N_X - 1; j++) {
+            for (int k = 1; k < N_Y - 1; k++) {
+                z[j][k] = Math.sin(Math.PI * j * H_X) * Math.sin(Math.PI * k * H_Y);
+            }
+        }
+        Plot3DPanel plot = new Plot3DPanel("SOUTH");
+        plot.addGridPlot("u0", x, y, u0);
+//        plot.addGridPlot("phi", x, y, phi[N_TIME_STEPS-1]);
+        plot.addGridPlot("u1", x, y, u1);
+        plot.addGridPlot("u1orig", x, y, z);
+        JFrame frame = new JFrame("a plot panel");
+        frame.setSize(600, 600);
+        frame.setContentPane(plot);
+        frame.setVisible(true);
     }
 
     private static double[][][] eqForPhi(double[][][] phi, double[][] u0, double[][] u1) {
@@ -89,7 +110,7 @@ public class App {
         double[][] u0 = new double[N_X][N_Y];
         for (int j = 1; j < N_X - 1; j++) {
             for (int k = 1; k < N_Y - 1; k++) {
-                u0[j][k] = 0;
+                u0[j][k] = 0;//TAU*Math.sin(j * H_X) * Math.sin(k * H_Y)*T;
             }
         }
         return u0;
@@ -99,7 +120,7 @@ public class App {
         double[][] u1 = new double[N_X][N_Y];
         for (int j = 1; j < N_X - 1; j++) {
             for (int k = 1; k < N_Y - 1; k++) {
-                u1[j][k] = 0;
+                u1[j][k] = 0; //- TAU*Math.sin(j * H_X) * Math.sin(k * H_Y)*T;
 //                        Math.sin(j * H_X) * Math.sin(k * H_Y);
             }
         }
@@ -125,7 +146,7 @@ public class App {
     }
 
     private static double varphi0(int j, int k) {
-        return Math.sin(j * H_X) * Math.sin(k * H_Y);
+        return Math.sin(Math.PI * j * H_X) * Math.sin(Math.PI * k * H_Y);
     }
 
     private static double varphi1(int j, int k) {
