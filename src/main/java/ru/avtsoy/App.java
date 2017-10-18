@@ -108,19 +108,26 @@ public class App {
 //            System.out.println(varerror + ", " + alphas[i]);
 //        }
         Runner runner = new Runner(3,0.001);
+        double[][] phiT_t = new double[N_X][N_Y];
+            for (int j = 1; j < N_X - 1; j++) {
+                for (int k = 1; k < N_Y - 1; k++) {
+                    phiT_t[j][k] = (runner.phi[N_TIME_STEPS - 1][j][k] - runner.phi[N_TIME_STEPS - 2][j][k]) / TIME_STEP;
+                }
+            }
         double[] x = increment(0.0, H_X, 1.0); // x = 0.0:0.1:1.0
         double[] y = increment(0.0, H_Y, 1.0);// y = 0.0:0.05:1.0
         double[] alpha_x = {-8, -7, -6, -5, -4, -3, -2, -1};
 //        Plot2DPanel plot = new Plot2DPanel("SOUTH");
         Plot3DPanel plot = new Plot3DPanel("SOUTH");
-        plot.addGridPlot("u0", x, y, runner.u0);
-        plot.addGridPlot("u0orig", x, y, z0);
-//        plot.addGridPlot("phiT", x, y, runner.phi[N_TIME_STEPS-1]);
+//        plot.addGridPlot("u0", x, y, runner.u0);
+//        plot.addGridPlot("u0orig", x, y, z0);
+        plot.addGridPlot("phiT", x, y, runner.phi[N_TIME_STEPS-1]);
 //        plot.addGridPlot("phiT_t", x, y, phiT_t);
+//        plot.addGridPlot("phiT_torig", x, y, z0);
 //        plot.addGridPlot("phi0", x, y, phi[0]);
 //        plot.addGridPlot("u1", x, y, runner.u1);
 //        plot.addGridPlot("u1orig", x, y, z);
-//        plot.addGridPlot("phiTorig", x, y, z);
+        plot.addGridPlot("phiTorig", x, y, z);
 //        plot.addLinePlot("u/u0", alpha_x, errors);
 //        plot.setAxisLabel(0, "alpha");
 //        plot.setAxisLabel(1, "");
